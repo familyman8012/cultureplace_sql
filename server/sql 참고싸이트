@@ -3,3 +3,65 @@ https://minu0807.tistory.com/126
 https://www.mongodb.com/docs/manual/reference/sql-comparison/
 https://ukcasso.tistory.com/64
 https://cheony-y.tistory.com/169
+
+const express = require("express");
+const path = require("path");
+const bodyParser = require("body-parser");
+const mysql = require("mysql");
+const ejs = require("ejs");
+const app = express();
+const port = 3000;
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.set("view engine", "ejs");
+
+app.engine("ejs", require("ejs").\_\_express);
+
+const con = mysql.createConnection({
+host: "localhost",
+user: "root",
+password: "mysql",
+database: "express_db",
+});
+
+app.get("/", (req, res) => {
+const sql = "select \* from users";
+con.query(sql, function (err, result, fields) {
+if (err) throw err;
+res.render("index", { users: result });
+});
+});
+app.post("/", (req, res) => {
+const sql = "INSERT INTO users SET ?";
+con.query(sql, req.body, function (err, result, fields) {
+if (err) throw err;
+console.log(result);
+res.send("등록이 완료 되었습니다.");
+});
+});
+app.get("/delete/:id", (req, res) => {
+const sql = "DELETE FROM users WHERE id = ?";
+con.query(sql, [req.params.id], function (err, result, fields) {
+if (err) throw err;
+console.log(result);
+res.redirect("/");
+});
+});
+
+app.get("/edit/:id", (req, res) => {
+const sql = "SELECT \* FROM users WHERE id = ?";
+con.query(sql, [req.params.id], function (err, result, fields) {
+if (err) throw err;
+res.render("edit", { user: result });
+});
+});
+
+app.post("/update/:id", (req, res) => {
+const sql = `UPDATE users SET ? WHERE id = ${req.params.id}`;
+con.query(sql, req.body, function (err, result, fields) {
+if (err) throw err;
+console.log(result);
+res.redirect("/");
+});
+});
+app.listen(port, () => console.log(`start port ${port}`));
