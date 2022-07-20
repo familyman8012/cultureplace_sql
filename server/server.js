@@ -5,13 +5,15 @@ import mongoose from "mongoose";
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 require("dotenv").config();
-const mysql = require("mysql");
+const mysql = require("mysql2/promise");
 
-export const con = mysql.createConnection({
+module.exports = mysql.createPool({
   host: "localhost",
   user: "root",
   password: "mysql",
   database: "cultureplace",
+  connectTimeout: 5000,
+  connectionLimit: 30, //default 10
 });
 
 // create express app
